@@ -6,4 +6,12 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="OpenAI" Version="1.7.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CaptionsTranslator.Shared\CaptionsTranslator.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

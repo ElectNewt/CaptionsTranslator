@@ -4,6 +4,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{188AACB9-978
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptionsTranslator.Core", "src\CaptionsTranslator.Core\CaptionsTranslator.Core.csproj", "{E29F434C-9326-4B4C-AAEA-C1D4CBE90580}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptionsTranslator.App", "src\CaptionsTranslator.App\CaptionsTranslator.App.csproj", "{58549D66-7CC7-45A5-963B-27942C0E3A14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptionsTranslator.Shared", "src\CaptionsTranslator.Shared\CaptionsTranslator.Shared.csproj", "{F703307E-E7AF-4E10-ADE0-D183D77FC778}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,8 +18,18 @@ Global
 		{E29F434C-9326-4B4C-AAEA-C1D4CBE90580}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E29F434C-9326-4B4C-AAEA-C1D4CBE90580}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E29F434C-9326-4B4C-AAEA-C1D4CBE90580}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58549D66-7CC7-45A5-963B-27942C0E3A14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58549D66-7CC7-45A5-963B-27942C0E3A14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58549D66-7CC7-45A5-963B-27942C0E3A14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58549D66-7CC7-45A5-963B-27942C0E3A14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F703307E-E7AF-4E10-ADE0-D183D77FC778}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F703307E-E7AF-4E10-ADE0-D183D77FC778}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F703307E-E7AF-4E10-ADE0-D183D77FC778}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F703307E-E7AF-4E10-ADE0-D183D77FC778}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E29F434C-9326-4B4C-AAEA-C1D4CBE90580} = {188AACB9-978F-4928-B4E3-5A309119ADAA}
+		{58549D66-7CC7-45A5-963B-27942C0E3A14} = {188AACB9-978F-4928-B4E3-5A309119ADAA}
+		{F703307E-E7AF-4E10-ADE0-D183D77FC778} = {188AACB9-978F-4928-B4E3-5A309119ADAA}
 	EndGlobalSection
 EndGlobal
