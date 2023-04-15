@@ -1,0 +1,812 @@
+1
+00:00:00,000 --> 00:00:04,259
+Bienvenidos a un nuevo vídeo para el
+
+2
+00:00:01,319 --> 00:00:06,839
+canal donde hoy vamos a ver otro enfoque
+
+3
+00:00:04,259 --> 00:00:08,880
+dentro de framework a la hora de empezar
+
+4
+00:00:06,839 --> 00:00:12,360
+o a la hora de estar con un proyecto que
+
+5
+00:00:08,880 --> 00:00:15,360
+es cofrest bueno Qué es First en ente
+
+6
+00:00:12,360 --> 00:00:16,740
+frame Core vale es lo mismo y para ser
+
+7
+00:00:15,360 --> 00:00:19,740
+sinceros es lo mismo en cualquier otro
+
+8
+00:00:16,740 --> 00:00:21,420
+lenguaje de programación no Esto no es
+
+9
+00:00:19,740 --> 00:00:24,080
+de punto net exactamente O sea no es
+
+10
+00:00:21,420 --> 00:00:27,060
+únicamente punto net pero lo utilizamos
+
+11
+00:00:24,080 --> 00:00:29,220
+y básicamente con el enfoque donde
+
+12
+00:00:27,060 --> 00:00:31,980
+creamos primero las clases o las
+
+13
+00:00:29,220 --> 00:00:34,079
+entidades en código y luego entity
+
+14
+00:00:31,980 --> 00:00:38,040
+framework el que se encarga de crear la
+
+15
+00:00:34,079 --> 00:00:40,379
+propia base de datos en sql
+
+16
+00:00:38,040 --> 00:00:43,379
+es básicamente lo opuesto a lo que vimos
+
+17
+00:00:40,379 --> 00:00:45,540
+en el vídeo anterior de Data por
+
+18
+00:00:43,379 --> 00:00:48,600
+supuesto este código está en github y
+
+19
+00:00:45,540 --> 00:00:51,440
+ahora lo que vamos a hacer es pues ir e
+
+20
+00:00:48,600 --> 00:00:55,559
+implementarlo en punto
+
+21
+00:00:51,440 --> 00:00:57,180
+vale estamos en el código y si visteis
+
+22
+00:00:55,559 --> 00:00:59,520
+el vídeo anterior sabréis que teníamos
+
+23
+00:00:57,180 --> 00:01:00,899
+una estructura de tablas de usuario y
+
+24
+00:00:59,520 --> 00:01:02,640
+working experience vale tenemos un
+
+25
+00:01:00,899 --> 00:01:04,799
+usuario con un email nombre lo más
+
+26
+00:01:02,640 --> 00:01:07,920
+simple posible igual que sprints tiene
+
+27
+00:01:04,799 --> 00:01:10,920
+Pues un poco más de información entonces
+
+28
+00:01:07,920 --> 00:01:14,460
+Estas son las entidades que se van a
+
+29
+00:01:10,920 --> 00:01:17,159
+convertir en Tablas además esto tiene
+
+30
+00:01:14,460 --> 00:01:19,500
+más se puede Añadir mayor configuración
+
+31
+00:01:17,159 --> 00:01:22,439
+por ejemplo aquí no tengo nada vale Pero
+
+32
+00:01:19,500 --> 00:01:26,580
+si por ejemplo le pones aquí un Max led
+
+33
+00:01:22,439 --> 00:01:28,560
+de 50 lo que hace es básicamente en vez
+
+34
+00:01:26,580 --> 00:01:30,780
+de crear el String Como creo que es long
+
+35
+00:01:28,560 --> 00:01:33,659
+text una vez llega a la base de datos lo
+
+36
+00:01:30,780 --> 00:01:35,700
+crea como marchard de 50 vale que sería
+
+37
+00:01:33,659 --> 00:01:37,579
+lo más apropiado que pusieras los
+
+38
+00:01:35,700 --> 00:01:39,659
+límites porque bueno
+
+39
+00:01:37,579 --> 00:01:42,299
+o si por ejemplo una propiedad
+
+40
+00:01:39,659 --> 00:01:44,820
+desnudable en la propia base de datos se
+
+41
+00:01:42,299 --> 00:01:47,340
+anulable si una propiedad Por ejemplo si
+
+42
+00:01:44,820 --> 00:01:51,600
+haces este nublable eso será nulo Pero
+
+43
+00:01:47,340 --> 00:01:53,939
+si no pues no será nulo vale cosas así
+
+44
+00:01:51,600 --> 00:01:56,399
+Bueno cómo hacemos esto pues lo que
+
+45
+00:01:53,939 --> 00:01:59,939
+tenemos que hacer es Añadir a nuestro
+
+46
+00:01:56,399 --> 00:02:02,880
+proyecto nuestro paquete de Microsoft
+
+47
+00:01:59,939 --> 00:02:04,920
+entity framework Core design y en mi
+
+48
+00:02:02,880 --> 00:02:07,200
+caso estoy utilizando una base de datos
+
+49
+00:02:04,920 --> 00:02:09,560
+mysql lo que quiere decir que necesito
+
+50
+00:02:07,200 --> 00:02:12,420
+importar mysql
+
+51
+00:02:09,560 --> 00:02:14,640
+si utilizas otra base de datos María de
+
+52
+00:02:12,420 --> 00:02:16,739
+b o yo que sé postres o la que sea
+
+53
+00:02:14,640 --> 00:02:19,920
+tienen diferentes drivers o conectores
+
+54
+00:02:16,739 --> 00:02:22,800
+Así que tienes que buscar cuáles son y
+
+55
+00:02:19,920 --> 00:02:25,500
+importarlos en vez de utilizar este en
+
+56
+00:02:22,800 --> 00:02:27,959
+concreto pero el Driver o conector se
+
+57
+00:02:25,500 --> 00:02:29,819
+utiliza únicamente para la conexión
+
+58
+00:02:27,959 --> 00:02:32,420
+String vale el resto de configuraciones
+
+59
+00:02:29,819 --> 00:02:36,540
+exactamente la misma para todo entonces
+
+60
+00:02:32,420 --> 00:02:39,480
+vamos a ello vimos en el primer vídeo
+
+61
+00:02:36,540 --> 00:02:42,420
+del curso que tenemos nuestros clases
+
+62
+00:02:39,480 --> 00:02:44,099
+que representan a las tablas que dentro
+
+63
+00:02:42,420 --> 00:02:46,319
+de lo que viene siendo un framework son
+
+64
+00:02:44,099 --> 00:02:48,599
+el divi set y para representar a la
+
+65
+00:02:46,319 --> 00:02:50,819
+propia base de datos tenemos el dv
+
+66
+00:02:48,599 --> 00:02:53,060
+context por lo tanto es lo que tenemos
+
+67
+00:02:50,819 --> 00:02:56,040
+que crear vale vamos a crear nuestro
+
+68
+00:02:53,060 --> 00:02:59,040
+curso ief
+
+69
+00:02:56,040 --> 00:02:59,040
+context
+
+70
+00:03:06,000 --> 00:03:14,700
+y lo que tenemos que hacer es añadir los
+
+71
+00:03:08,340 --> 00:03:14,700
+tips de los usuarios vale public set
+
+72
+00:03:14,760 --> 00:03:19,500
+y el user le ponemos aquí users
+
+73
+00:03:20,760 --> 00:03:23,720
+por algún motivo
+
+74
+00:03:24,540 --> 00:03:29,519
+me ha dejado de funcionar lo de
+
+75
+00:03:27,060 --> 00:03:30,959
+autocoger las cosas vale por algún
+
+76
+00:03:29,519 --> 00:03:33,659
+motivo le interesa me ha dejado de
+
+77
+00:03:30,959 --> 00:03:35,700
+funcionar y es bastante molesto Así que
+
+78
+00:03:33,659 --> 00:03:38,040
+ahora ya funciona intelisense podemos
+
+79
+00:03:35,700 --> 00:03:40,140
+continuar y lo que tenemos que hacer es
+
+80
+00:03:38,040 --> 00:03:43,560
+configurar la base de datos Vale
+
+81
+00:03:40,140 --> 00:03:44,900
+entonces es lo mismo que para que para
+
+82
+00:03:43,560 --> 00:03:49,440
+lo que vimos en
+
+83
+00:03:44,900 --> 00:03:49,440
+protected override voice
+
+84
+00:03:51,620 --> 00:03:54,980
+y esto
+
+85
+00:03:59,000 --> 00:04:05,879
+como en el caso anterior esto lo tenemos
+
+86
+00:04:01,620 --> 00:04:08,940
+aquí únicamente temporalmente porque no
+
+87
+00:04:05,879 --> 00:04:10,500
+es lo más apropiado debido a que pues
+
+88
+00:04:08,940 --> 00:04:12,299
+Vale pues está en el código y no
+
+89
+00:04:10,500 --> 00:04:14,519
+deberías de poner contraseñas en el
+
+90
+00:04:12,299 --> 00:04:17,820
+código vale obviamente ahora ya tenemos
+
+91
+00:04:14,519 --> 00:04:20,459
+el diviset configurado y tanto las
+
+92
+00:04:17,820 --> 00:04:22,940
+tablas como la conexión Entonces qué es
+
+93
+00:04:20,459 --> 00:04:25,080
+lo que podemos hacer Bueno anteriormente
+
+94
+00:04:22,940 --> 00:04:27,479
+antes de la verdad es que no recuerdo
+
+95
+00:04:25,080 --> 00:04:28,919
+exactamente qué versión todo esto que os
+
+96
+00:04:27,479 --> 00:04:31,680
+voy a enseñar ahora se hacía por la
+
+97
+00:04:28,919 --> 00:04:36,300
+línea de comandos vale en la terminal y
+
+98
+00:04:31,680 --> 00:04:39,000
+vas aquí y escribías donde yef creations
+
+99
+00:04:36,300 --> 00:04:41,460
+bla bla bla el sur my grade y ahora
+
+100
+00:04:39,000 --> 00:04:44,040
+mismo se puede hacer esto se puede hacer
+
+101
+00:04:41,460 --> 00:04:45,780
+en el propio código lo cual me parece
+
+102
+00:04:44,040 --> 00:04:49,080
+pues mejor entonces lo que tenemos que
+
+103
+00:04:45,780 --> 00:04:51,840
+hacer es ir a nuestro análisis y lo
+
+104
+00:04:49,080 --> 00:04:54,720
+primerísimo es Añadir nuestro divisor o
+
+105
+00:04:51,840 --> 00:04:56,400
+sea Perdón nuestro DM context a los
+
+106
+00:04:54,720 --> 00:04:58,380
+Services vale tenemos builder punto
+
+107
+00:04:56,400 --> 00:05:01,620
+Services punto
+
+108
+00:04:58,380 --> 00:05:03,900
+a TV context y le pones aquí curso y es
+
+109
+00:05:01,620 --> 00:05:07,800
+context y lo dejamos así lo dejamos así
+
+110
+00:05:03,900 --> 00:05:10,740
+porque la conexión está aquí vale está
+
+111
+00:05:07,800 --> 00:05:12,540
+aquí entonces si no quisiéramos tener
+
+112
+00:05:10,740 --> 00:05:14,580
+ahí la conexión que sería lo más
+
+113
+00:05:12,540 --> 00:05:16,440
+apropiado no tener like podríamos hacer
+
+114
+00:05:14,580 --> 00:05:21,840
+un options
+
+115
+00:05:16,440 --> 00:05:24,180
+bien y haremos options punto use mysql y
+
+116
+00:05:21,840 --> 00:05:25,919
+le pasamos aquí la conexión String que
+
+117
+00:05:24,180 --> 00:05:28,680
+la deberíamos de tener bueno en nuestro
+
+118
+00:05:25,919 --> 00:05:30,419
+apsettings o donde fuera pero para
+
+119
+00:05:28,680 --> 00:05:32,580
+simplificar para el vídeo la he dejado
+
+120
+00:05:30,419 --> 00:05:34,440
+ahí y ya está vale que sepáis que está
+
+121
+00:05:32,580 --> 00:05:35,300
+ahí y se puede cambiar
+
+122
+00:05:34,440 --> 00:05:38,160
+Vale
+
+123
+00:05:35,300 --> 00:05:43,100
+y ahora nos queda la parte de
+
+124
+00:05:38,160 --> 00:05:45,479
+automatizar la creación de las tablas
+
+125
+00:05:43,100 --> 00:05:47,820
+en las diferentes versiones de punto net
+
+126
+00:05:45,479 --> 00:05:49,919
+esto funciona un poquitín diferente Pero
+
+127
+00:05:47,820 --> 00:05:54,500
+básicamente lo que vamos a tener que
+
+128
+00:05:49,919 --> 00:05:54,500
+hacer ahora es crear un scope aquí vale
+
+129
+00:05:59,820 --> 00:06:03,720
+servicios
+
+130
+00:06:01,740 --> 00:06:08,220
+vale Y esto lo hacemos básicamente para
+
+131
+00:06:03,720 --> 00:06:11,580
+tener acceso al dp context
+
+132
+00:06:08,220 --> 00:06:14,100
+Y por qué lo hacemos aquí
+
+133
+00:06:11,580 --> 00:06:16,940
+esto lo hacemos aquí básicamente para
+
+134
+00:06:14,100 --> 00:06:16,940
+asegurarnos
+
+135
+00:06:20,639 --> 00:06:29,819
+para asegurarnos de que la base de datos
+
+136
+00:06:24,419 --> 00:06:29,819
+se ejecuta Al iniciar la aplicación vale
+
+137
+00:06:33,199 --> 00:06:37,979
+created está diseñado para montar bases
+
+138
+00:06:36,300 --> 00:06:39,600
+de datos de una forma muy rápida vale
+
+139
+00:06:37,979 --> 00:06:40,979
+por ejemplo cuando estamos creando la
+
+140
+00:06:39,600 --> 00:06:44,940
+primera implementación del proyecto como
+
+141
+00:06:40,979 --> 00:06:47,280
+es este caso por ahora lo dejamos así y
+
+142
+00:06:44,940 --> 00:06:49,800
+cuando veamos el siguiente vídeo my
+
+143
+00:06:47,280 --> 00:06:52,080
+grays cambiaremos este código un poco
+
+144
+00:06:49,800 --> 00:06:53,759
+porque con esos micrates lo que hacemos
+
+145
+00:06:52,080 --> 00:06:56,639
+Es asegurarnos que la base de datos
+
+146
+00:06:53,759 --> 00:06:59,220
+tiene las tablas o bueno existe y tiene
+
+147
+00:06:56,639 --> 00:07:01,259
+tablas perdón y si no tiene tablas se
+
+148
+00:06:59,220 --> 00:07:02,759
+ejecuta con el modelo dentity framework
+
+149
+00:07:01,259 --> 00:07:05,220
+que tienes definido que en nuestro caso
+
+150
+00:07:02,759 --> 00:07:07,259
+es nuestro curso en Word vale que es
+
+151
+00:07:05,220 --> 00:07:09,479
+este se ejecutará con este modelo pero
+
+152
+00:07:07,259 --> 00:07:11,940
+si tiene una tabla la que sea aunque no
+
+153
+00:07:09,479 --> 00:07:14,400
+esté aquí no se va a ejecutar Vale
+
+154
+00:07:11,940 --> 00:07:16,680
+entonces esto es simplemente para Now
+
+155
+00:07:14,400 --> 00:07:20,400
+muy rápido Es simplemente para entender
+
+156
+00:07:16,680 --> 00:07:22,800
+el proceso de code First en el vídeo
+
+157
+00:07:20,400 --> 00:07:25,560
+siguiente con migrations lo cambiaremos
+
+158
+00:07:22,800 --> 00:07:27,780
+Vale entonces si ahora lo que hacemos Es
+
+159
+00:07:25,560 --> 00:07:29,340
+ejecutar vale os voy a enseñar donde la
+
+160
+00:07:27,780 --> 00:07:32,699
+base de datos os enseño la base de datos
+
+161
+00:07:29,340 --> 00:07:34,560
+es esto de aquí refresh vale no tiene
+
+162
+00:07:32,699 --> 00:07:36,800
+nada Entonces si ahora ejecutamos la
+
+163
+00:07:34,560 --> 00:07:36,800
+aplicación
+
+164
+00:07:36,900 --> 00:07:42,300
+cuando pase por aquí
+
+165
+00:07:38,840 --> 00:07:47,639
+va a crear lo que viene siendo la base
+
+166
+00:07:42,300 --> 00:07:49,620
+de datos si no ha roto nada vale a ver y
+
+167
+00:07:47,639 --> 00:07:51,960
+ahora si refrescamos
+
+168
+00:07:49,620 --> 00:07:54,120
+vale curso de framework y como vemos
+
+169
+00:07:51,960 --> 00:07:56,639
+tenemos ambas tablas tanto users como
+
+170
+00:07:54,120 --> 00:07:58,800
+working experience Y si vamos a working
+
+171
+00:07:56,639 --> 00:08:01,259
+experience tenemos nuestro name y
+
+172
+00:07:58,800 --> 00:08:04,740
+nuestros details con un marchard de 50
+
+173
+00:08:01,259 --> 00:08:07,259
+porque es lo que hemos configurado aquí
+
+174
+00:08:04,740 --> 00:08:09,199
+básicamente vale es capaz de leer las
+
+175
+00:08:07,259 --> 00:08:12,300
+anotaciones para
+
+176
+00:08:09,199 --> 00:08:15,599
+convertirlas en lo que viene siendo sql
+
+177
+00:08:12,300 --> 00:08:18,360
+y vale Ya está me acabo de dar cuenta
+
+178
+00:08:15,599 --> 00:08:20,819
+cuando he puesto cuando he cambiado mi
+
+179
+00:08:18,360 --> 00:08:22,500
+cara que se daba todo el sol en la
+
+180
+00:08:20,819 --> 00:08:23,639
+cámara Así que no sé cómo se verá espero
+
+181
+00:08:22,500 --> 00:08:25,500
+no tener que volver a grabar el vídeo
+
+182
+00:08:23,639 --> 00:08:27,180
+pero bueno eso ha sido todo en el vídeo
+
+183
+00:08:25,500 --> 00:08:28,979
+de hoy vale en el Cold First que hemos
+
+184
+00:08:27,180 --> 00:08:31,860
+visto pues que primero se crean las
+
+185
+00:08:28,979 --> 00:08:34,260
+entidades y después se crea bueno o
+
+186
+00:08:31,860 --> 00:08:36,719
+después cuando ejecutas el código se
+
+187
+00:08:34,260 --> 00:08:38,940
+crea automáticamente la base de datos lo
+
+188
+00:08:36,719 --> 00:08:40,680
+cual es un proceso muy muy normal dentro
+
+189
+00:08:38,940 --> 00:08:42,180
+de lo que viene siendo los entornos de
+
+190
+00:08:40,680 --> 00:08:45,240
+desarrollo vale la gente está empezando
+
+191
+00:08:42,180 --> 00:08:47,339
+a no tener a no ser que las bases de
+
+192
+00:08:45,240 --> 00:08:49,620
+datos sean muy muy complejas Y esta es
+
+193
+00:08:47,339 --> 00:08:52,320
+una forma Pues de facilitar el
+
+194
+00:08:49,620 --> 00:08:54,000
+asunto y como digo es muy popular porque
+
+195
+00:08:52,320 --> 00:08:55,860
+es muy fácil de mantener y es muy útil
+
+196
+00:08:54,000 --> 00:08:58,080
+con las migraciones que como digo
+
+197
+00:08:55,860 --> 00:08:59,519
+veremos en el siguiente vídeo y bueno si
+
+198
+00:08:58,080 --> 00:09:01,160
+os ha gustado esto no olvide darle un
+
+199
+00:08:59,519 --> 00:09:03,899
+buen like suscribirte si no lo estás
+
+200
+00:09:01,160 --> 00:09:06,360
+compartirlo comentarios y todas esas
+
+201
+00:09:03,899 --> 00:09:09,140
+cositas vale lo que quieras eso ha sido
+
+202
+00:09:06,360 --> 00:09:31,740
+todo un saludo y adiós
+
+203
+00:09:09,140 --> 00:09:31,740
+[Música]
+

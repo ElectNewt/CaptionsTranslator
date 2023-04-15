@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CaptionsTranslator.Dependencies\CaptionsTranslator.Dependencies.csproj" />
       <ProjectReference Include="..\CaptionsTranslator.Shared\CaptionsTranslator.Shared.csproj" />
     </ItemGroup>
 

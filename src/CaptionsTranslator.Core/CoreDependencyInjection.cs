@@ -11,7 +11,6 @@ public static class CoreDependencyInjection
         return serviceCollection
             .AddScoped<IFileService, FileService>()
             .AddScoped<ICaptionService, CaptionService>()
-            .AddScoped<ITranslationService, TranslationService>()
             .AddScoped<ITranslateFileService, TranslateFileService>()
             .AddScoped<IDirectoryService, DirectoryService>();
     }

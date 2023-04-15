@@ -1,4 +1,5 @@
-﻿using CaptionsTranslator.Shared.Dtos;
+﻿using CaptionsTranslator.Dependencies.OpenAI;
+using CaptionsTranslator.Shared.Dtos;
 using CaptionsTranslator.Shared.Settings;
 
 namespace CaptionsTranslator.Core.Services;
@@ -12,15 +13,15 @@ public class TranslateFileService : ITranslateFileService
 {
     private readonly IFileService _fileService;
     private readonly ICaptionService _captionService;
-    private readonly ITranslationService _translationService;
+    private readonly ISubtitleTranslationService _subtitleTranslationService;
     private readonly AppSettings _appSettings;
 
     public TranslateFileService(IFileService fileService, ICaptionService captionService,
-        ITranslationService translationService, AppSettings appSettings)
+        ISubtitleTranslationService subtitleTranslationService, AppSettings appSettings)
     {
         _fileService = fileService;
         _captionService = captionService;
-        _translationService = translationService;
+        _subtitleTranslationService = subtitleTranslationService;
         _appSettings = appSettings;
     }
 
@@ -31,14 +32,15 @@ public class TranslateFileService : ITranslateFileService
             await _captionService.RetrieveCaptions(_appSettings.TranslationSettings.OriginalFolder,
                 fileName);
 
-        string translatedFile = await _translationService.TranslateFile(captionFile);
+
+        string translatedFile = await _subtitleTranslationService.TranslateFile(captionFile);
         List<Caption> translatedCaptions = _captionService.ConvertIntoCaptions(translatedFile);
 
         //Verify if all the captions are translated this should be done in a loop, if fails 3 times generate an exception?
         List<Caption> missingCaptions = _captionService.MissingCaptions(translatedCaptions);
         if (missingCaptions.Any())
         {
-            string missingTranslatedString = await _translationService.RetrieveMissingTranslations(missingCaptions);
+            string missingTranslatedString = await _subtitleTranslationService.RetrieveMissingTranslations(missingCaptions);
             List<Caption> missingTranslatedCaptions = _captionService.ConvertIntoCaptions(missingTranslatedString);
             translatedCaptions = translatedCaptions.Concat(missingTranslatedCaptions).OrderBy(a => a.Number).ToList();
         }

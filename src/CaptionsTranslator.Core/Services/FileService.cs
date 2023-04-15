@@ -1,7 +1,4 @@
-﻿using System.Text;
-using CaptionsTranslator.Shared.Dtos;
-
-namespace CaptionsTranslator.Core.Services;
+﻿namespace CaptionsTranslator.Core.Services;
 
 public interface IFileService
 {

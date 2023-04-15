@@ -8,7 +8,11 @@ public interface ICaptionService
     Task<CaptionFile> RetrieveCaptions(string directory, string fileName);
     List<Caption> ConvertIntoCaptions(string content);
     List<Caption> MissingCaptions(List<Caption> translatedCaptions);
+
     string ConvertIntoString(List<Caption> translated);
+
+    //Used for testing
+    string ConvertIntoStringNoTime(List<Caption> translated);
 }
 
 public class CaptionService : ICaptionService
@@ -25,10 +29,13 @@ public class CaptionService : ICaptionService
     {
         string fileContent = await _fileService.LoadCaptionFile(directory, fileName);
 
-        var content = fileContent.Split("\r\n\r\n")
+        var content = fileContent.Split("\n\n")
             .Select(a =>
             {
-                var v1 = a.Split("\r\n", 3);
+                var v1 = a.Split("\n", 3);
+                if (v1.Length != 3)
+                    return new Caption() { Number = "0", Time = "", Content = "" };
+
                 return new Caption()
                 {
                     Number = v1[0].Trim(),
@@ -36,6 +43,10 @@ public class CaptionService : ICaptionService
                     Content = v1[2]
                 };
             })
+            .Where(a => a.Number != "0")
+            //This is a bug on the youtube download that contains the captions duplicated
+            .GroupBy(a => a.Number)
+            .Select(a => a.First())
             .ToList();
 
         _captionFile = new CaptionFile()
@@ -49,10 +60,10 @@ public class CaptionService : ICaptionService
 
     public List<Caption> ConvertIntoCaptions(string content)
         => content
-            .Split("\r\n\r\n")
+            .Split("\n\n")
             .Select(a =>
             {
-                var v1 = a.Split("\r\n", 2);
+                var v1 = a.Split("\n", 2);
                 return new Caption()
                 {
                     Number = v1[0].Trim(),
@@ -64,16 +75,32 @@ public class CaptionService : ICaptionService
 
 
     public List<Caption> MissingCaptions(List<Caption> translatedCaptions)
-        => _captionFile.Captions.Where(a => translatedCaptions.All(t => a.Number != t.Number)).ToList();
+        => _captionFile?.Captions.Where(a => translatedCaptions.All(t => a.Number != t.Number)).ToList() ?? throw new InvalidOperationException();
 
-    
+
     public string ConvertIntoString(List<Caption> translated)
     {
         StringBuilder sb = new StringBuilder();
+        if (_captionFile == null) return sb.ToString();
         for (int i = 0; i < _captionFile.Captions.Count; i++)
         {
             sb.AppendLine(_captionFile.Captions[i].Number);
             sb.AppendLine(_captionFile.Captions[i].Time);
+            sb.AppendLine(translated[i].Content);
+            sb.AppendLine(string.Empty);
+        }
+
+
+        return sb.ToString();
+    }
+
+    public string ConvertIntoStringNoTime(List<Caption> translated)
+    {
+        StringBuilder sb = new StringBuilder();
+        if (_captionFile == null) return sb.ToString();
+        for (int i = 0; i < _captionFile.Captions.Count; i++)
+        {
+            sb.AppendLine(_captionFile.Captions[i].Number);
             sb.AppendLine(translated[i].Content);
             sb.AppendLine(string.Empty);
         }

@@ -1,7 +1,8 @@
 ﻿namespace CaptionsTranslator.Shared.Settings;
 
-public class AppSettings
+public record AppSettings
 {
-    public OpenAiSettings OpenAiSettings { get; set; }
-    public TranslationSettings TranslationSettings { get; set; }
+    public required OpenAiSettings OpenAiSettings { get; init; }
+    public required TranslationSettings TranslationSettings { get; init; }
+    public required YouTubeSettings YouTubeSettings { get; init; }
 }
