@@ -16,15 +16,14 @@ public interface ISubtitleTranslationService
 
 public class SubtitleSubtitleTranslationService : ISubtitleTranslationService
 {
+    private Conversation Conversation => _maybeConversation ??= InitiateConversation(_appSettings);
     private readonly AppSettings _appSettings;
-    private readonly Conversation _conversation;
+    private Conversation? _maybeConversation;
 
     public SubtitleSubtitleTranslationService(AppSettings appSettings)
     {
         _appSettings = appSettings;
-        _conversation = InitiateConversation(_appSettings);
     }
-
     public async Task<string> TranslateFile(CaptionFile file)
     {
         StringBuilder responses = new StringBuilder();
@@ -76,6 +75,8 @@ Instructions:
 - Ensure the number of combination of ID, Translations is the same in the output and in the input.
 - Check the accuracy and naturalness of the translations before submitting them to the user.
 - Do not include the examples in the output when the use is finished. 
+
+Do you have any doubt?
 """;
         
         OpenAIAPI api = new OpenAIAPI(appSettings.OpenAiSettings.API_KEY);
@@ -92,8 +93,8 @@ Instructions:
     
     private async Task<string> ContinueConversation(Caption[] captions)
     {
-        _conversation.AppendUserInput(BuildBatch(captions));
-        var response = await _conversation.GetResponseFromChatbotAsync();
+        Conversation.AppendUserInput(BuildBatch(captions));
+        var response = await Conversation.GetResponseFromChatbotAsync();
         Console.WriteLine(response);
         return response;
     }
