@@ -12,6 +12,7 @@ public static class CoreDependencyInjection
             .AddScoped<IFileService, FileService>()
             .AddScoped<ICaptionService, CaptionService>()
             .AddScoped<ITranslateFileService, TranslateFileService>()
+            .AddScoped<IPlainToCaptionService, PlainToCaptionService>()
             .AddScoped<IDirectoryService, DirectoryService>();
     }
     

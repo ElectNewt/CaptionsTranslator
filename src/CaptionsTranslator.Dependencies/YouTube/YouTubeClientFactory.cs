@@ -31,12 +31,10 @@ public class YouTubeClientFactory : IYouTubeClientFactory
 
         return YouTubeService ??= new YouTubeService(new BaseClientService.Initializer()
         {
-           // ApiKey = _configuration.API_KEY,
             ApplicationName = _configuration.ApplicationName,
             HttpClientInitializer = GoogleCredential.FromAccessToken(authToken.AccessToken)
         });
     }
-
 
     private async Task<TokenResponse> CalculateToken()
     {
@@ -58,6 +56,7 @@ public class YouTubeClientFactory : IYouTubeClientFactory
 
         // TokenResponse contains the tokens, access token expiry time etc.
         UserCredential = userCredential;
+        await RefreshToken();
 
         return userCredential.Token;
     }

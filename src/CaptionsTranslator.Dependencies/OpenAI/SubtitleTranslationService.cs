@@ -27,10 +27,11 @@ public class SubtitleSubtitleTranslationService : ISubtitleTranslationService
     public async Task<string> TranslateFile(CaptionFile file)
     {
         StringBuilder responses = new StringBuilder();
-        foreach (var caption in file.Captions.Chunk(5).Select((value, iteration) => (value, iteration)))
+        foreach (var caption in file.Captions.Chunk(40).Select((value, iteration) => (value, iteration)))
         {
             string result = await ContinueConversation(caption.value);
             responses.AppendLine(result);
+            responses.AppendLine(String.Empty);
         }
 
         return responses.ToString();
@@ -39,7 +40,7 @@ public class SubtitleSubtitleTranslationService : ISubtitleTranslationService
     public async Task<string> RetrieveMissingTranslations(List<Caption> captions)
     {
         StringBuilder responses = new StringBuilder();
-        foreach (var caption in captions.Chunk(5).Select((value, iteration) => (value, iteration)))
+        foreach (var caption in captions.Chunk(25).Select((value, iteration) => (value, iteration)))
         {
             string result = await ContinueConversation(caption.value);
             responses.AppendLine(result);
@@ -83,7 +84,7 @@ Do you have any doubt?
         Conversation conversation = api.Chat.CreateConversation(new ChatRequest()
         {
             Temperature = 0.1,
-            Model = Model.ChatGPTTurbo
+            Model = Model.GPT4
         });
         
         // Append system message with instructions for the chat
@@ -104,8 +105,9 @@ Do you have any doubt?
         StringBuilder sb = new StringBuilder();
         foreach (var caption in captions)
         {
-            sb.AppendLine(caption.Number);
+            sb.AppendLine(caption.Number.ToString());
             sb.AppendLine(caption.Content);
+            sb.AppendLine();
         }
 
         return sb.ToString();

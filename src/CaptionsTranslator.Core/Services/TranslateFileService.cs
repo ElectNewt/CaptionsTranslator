@@ -28,12 +28,20 @@ public class TranslateFileService : ITranslateFileService
 
     public async Task Execute(string fileName)
     {
+        //Load file with the original transcription
         CaptionFile captionFile =
             await _captionService.RetrieveCaptions(_appSettings.TranslationSettings.OriginalFolder,
                 fileName);
 
-
+        //Translate into "Plain format" and store in an intermediate folder
         string translatedFile = await _subtitleTranslationService.TranslateFile(captionFile);
+        await _fileService.DumpCaptionsIntoFile(_appSettings.TranslationSettings.PlainTranslation, fileName,
+            translatedFile);
+        
+        //Load again because sometimes chatgpt does not split properly the lines but when saving into a file, it does.
+        translatedFile = await _fileService.LoadCaptionFile(_appSettings.TranslationSettings.PlainTranslation, fileName);
+        
+        //Convert the string into the caption object
         List<Caption> translatedCaptions = _captionService.ConvertIntoCaptions(translatedFile);
 
         //Verify if all the captions are translated this should be done in a loop, if fails 3 times generate an exception?
@@ -45,9 +53,8 @@ public class TranslateFileService : ITranslateFileService
             translatedCaptions = translatedCaptions.Concat(missingTranslatedCaptions).OrderBy(a => a.Number).ToList();
         }
 
+        //convert the captionslist into a string object and dumpit into a file
         string translatedString = _captionService.ConvertIntoString(translatedCaptions);
-
-        //Dump into a file
         await _fileService.DumpCaptionsIntoFile(_appSettings.TranslationSettings.TranslationFolder, fileName,
             translatedString);
     }

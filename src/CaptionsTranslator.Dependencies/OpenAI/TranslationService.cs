@@ -2,6 +2,7 @@
 using CaptionsTranslator.Shared.Settings;
 using OpenAI_API;
 using OpenAI_API.Chat;
+using OpenAI_API.Models;
 
 namespace CaptionsTranslator.Dependencies.OpenAI;
 
@@ -37,7 +38,11 @@ public class TranslationService : ITranslationService
         string systemMessage = "You are a translation System.";
 
         OpenAIAPI api = new OpenAIAPI(appSettings.OpenAiSettings.API_KEY);
-        Conversation conversation = api.Chat.CreateConversation();
+        Conversation conversation = api.Chat.CreateConversation(new ChatRequest()
+        {
+            Temperature = 0.1,
+            Model = Model.GPT4
+        });
 
         conversation.AppendSystemMessage(systemMessage);
         return conversation;

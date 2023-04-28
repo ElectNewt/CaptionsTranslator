@@ -4,7 +4,6 @@ using CaptionsTranslator.Dependencies;
 using CaptionsTranslator.Dependencies.OpenAI;
 using CaptionsTranslator.Dependencies.YouTube;
 using CaptionsTranslator.Shared.Settings;
-using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,8 +31,10 @@ IServiceCollection serviceCollection = new ServiceCollection()
 
 ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
+//TODO: This should be done on their own methods
 ITranslateFileService translateFile = serviceProvider.GetRequiredService<ITranslateFileService>();
 ITranslationService translationService = serviceProvider.GetRequiredService<ITranslationService>();
+IPlainToCaptionService plainToCaptionService = serviceProvider.GetRequiredService<IPlainToCaptionService>();
 IYouTube youTube = serviceProvider.GetRequiredService<IYouTube>();
 
 /*******  PROGRAM STARTS HERE *********/
@@ -53,6 +54,9 @@ do
             case 2:
                 await TranslateCaptions(videoId);
                 break;
+            case 3:
+                await PlainToCaption(videoId);
+                break;
         }
     }
 } while (menuOptionSelected != 0);
@@ -60,7 +64,8 @@ do
 string? MenuOption()
 {
     Console.WriteLine("1 - Translate video title and description");
-    Console.WriteLine("2 - Translate subtitles (not supported yet, as chatgpt3.5 sucks)");
+    Console.WriteLine("2 - Translate subtitles (very expensive)");
+    Console.WriteLine("3 - plain file to captions");
     Console.WriteLine("0 - Exit");
     string? result = Console.ReadLine();
     return result;
@@ -75,7 +80,7 @@ int PrintMenu()
 
         if (int.TryParse(selectedOption, out int r))
             result = r;
-    } while (result == null || (result >= 3 || result <= -1));
+    } while (result == null || (result >= 4 || result <= -1));
 
     return (int)result;
 }
@@ -92,22 +97,27 @@ async Task TranslateVideoMetadata(string videoId)
     //Update video title and description
     var videoInformation = await youTube.GetVideoInformation(videoId);
     Console.WriteLine($"Original title: {videoInformation.Title}");
-    Console.WriteLine("Translating it to English...");    
-    // string translatedTitle = await translationService.PlainTranslation(videoInformation.Title);
-    // string translatedDescription = await translationService.PlainTranslation(videoInformation.Description);
-    // await youTube.UpdateVideoLocalization(videoId, translatedTitle, translatedDescription);
-    
+    Console.WriteLine("Translating it to English...");
+    string translatedTitle = await translationService.PlainTranslation(videoInformation.Title);
+    string translatedDescription = await translationService.PlainTranslation(videoInformation.Description);
+    await youTube.UpdateVideoLocalization(videoId, translatedTitle, translatedDescription);
+
     Console.WriteLine("Translated and updated in Youtube.");
 }
 
-Task TranslateCaptions(string videoId)
+async Task TranslateCaptions(string videoId)
 {
     Console.WriteLine($"Translate captions for video: {videoId}; this might take a while.");
-    return Task.CompletedTask;
     //Download the transcription file on the default language
     //Translate it
     //update it to Youtube translated into English
-    // string captionsFileName = await youTube.DownloadCaptionFile(videoId);
-    // await translateFile.Execute(captionsFileName);
-    // await youTube.UploadTranslatedFile(videoId);
+    string captionsFileName = await youTube.DownloadCaptionFile(videoId);
+    await translateFile.Execute(captionsFileName);
+    await youTube.UploadTranslatedFile(videoId);
+}
+
+async Task PlainToCaption(string videoId)
+{
+    Console.WriteLine($"plain to caption for video {videoId}");
+    await plainToCaptionService.Execute($"{videoId}.srt");
 }
