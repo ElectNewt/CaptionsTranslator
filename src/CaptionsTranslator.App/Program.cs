@@ -24,12 +24,6 @@ IServiceCollection serviceCollection = new ServiceCollection()
 
 ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
-//TODO: This should be done on their own methods
-ITranslateFileService translateFile = serviceProvider.GetRequiredService<ITranslateFileService>();
-ITranslationService translationService = serviceProvider.GetRequiredService<ITranslationService>();
-IPlainToCaptionService plainToCaptionService = serviceProvider.GetRequiredService<IPlainToCaptionService>();
-IYouTube youTube = serviceProvider.GetRequiredService<IYouTube>();
-
 /*******  PROGRAM STARTS HERE *********/
 
 int menuOptionSelected = 0;
@@ -87,8 +81,11 @@ string GetVideoIdFromUser()
 
 async Task TranslateVideoMetadata(string videoId)
 {
-    //Update video title and description
-    var videoInformation = await youTube.GetVideoInformation(videoId);
+	ITranslationService translationService = serviceProvider.GetRequiredService<ITranslationService>();
+	IYouTube youTube = serviceProvider.GetRequiredService<IYouTube>();
+
+	//Update video title and description
+	var videoInformation = await youTube.GetVideoInformation(videoId);
     Console.WriteLine($"Original title: {videoInformation.Title}");
     Console.WriteLine("Translating it to English...");
     string translatedTitle = await translationService.PlainTranslation(videoInformation.Title);
@@ -100,7 +97,9 @@ async Task TranslateVideoMetadata(string videoId)
 
 async Task TranslateCaptions(string videoId)
 {
-    Console.WriteLine($"Translate captions for video: {videoId}; this might take a while.");
+	ITranslateFileService translateFile = serviceProvider.GetRequiredService<ITranslateFileService>();
+	IYouTube youTube = serviceProvider.GetRequiredService<IYouTube>();
+	Console.WriteLine($"Translate captions for video: {videoId}; this might take a while.");
     //Download the transcription file on the default language
     //Translate it
     //update it to Youtube translated into English
@@ -111,6 +110,7 @@ async Task TranslateCaptions(string videoId)
 
 async Task PlainToCaption(string videoId)
 {
+	IPlainToCaptionService plainToCaptionService = serviceProvider.GetRequiredService<IPlainToCaptionService>();
     Console.WriteLine($"plain to caption for video {videoId}");
     await plainToCaptionService.Execute($"{videoId}.srt");
 }

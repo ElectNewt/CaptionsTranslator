@@ -1,0 +1,45 @@
+﻿@page "/youtube"
+@using System.Text.RegularExpressions;
+@using System.Web;
+
+<h3>Load Youtube Vídeo</h3>
+
+<div class="row ">
+	<div class="col-auto">
+		<div class="form-floating mb-3">
+			<input type="text" class="form-control" id="videoId" @bind="VideoId" placeholder="videoID">
+			<label for="videoId">Load VideoId information</label>
+		</div>
+	</div>
+	<div class="col-auto">
+		<button type="submit" class="btn btn-primary mb-3" @onclick="LoadYTInformation">Load</button>
+	</div>
+</div>
+
+<div class="row @VideoBoxVisibility">
+	<div class="col-12 @LoadingVisibility">
+		Loading...
+	</div>
+	<div class="col-12 @ContentVisibility">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Title</h5>
+						<p class="card-text">@TitleContent</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Description</h5>
+						<p class="card-text">
+							@DescriptionContent
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
