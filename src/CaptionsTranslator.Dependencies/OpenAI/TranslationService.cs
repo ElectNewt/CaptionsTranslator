@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using CaptionsTranslator.Shared.Settings;
-using OpenAI_API;
-using OpenAI_API.Chat;
-using OpenAI_API.Models;
+using Microsoft.Extensions.Options;
 
 namespace CaptionsTranslator.Dependencies.OpenAI;
 
@@ -11,13 +9,12 @@ public interface ITranslationService
     Task<string> PlainTranslation(string text);
 }
 
-public class TranslationService : ITranslationService
+public class TranslationService : OpenAiBaseClass, ITranslationService
 {
-    private readonly Conversation _conversation;
-
-    public TranslationService(AppSettings appSettings)
+    protected override string? SystemMessage => "You are a translation System.";
+    
+    public TranslationService(IOptions<OpenAiSettings> openAiSettings) : base(openAiSettings)
     {
-        _conversation = InitiateConversation(appSettings);
     }
 
     public async Task<string> PlainTranslation(string text)
@@ -27,24 +24,9 @@ public class TranslationService : ITranslationService
         sb.AppendLine(message);
         sb.AppendLine(text);
 
-        _conversation.AppendUserInput(sb.ToString());
-        string response = await _conversation.GetResponseFromChatbotAsync();
+        Conversation.AppendUserInput(sb.ToString());
+        string response = await Conversation.GetResponseFromChatbotAsync();
 
         return response;
-    }
-
-    private Conversation InitiateConversation(AppSettings appSettings)
-    {
-        string systemMessage = "You are a translation System.";
-
-        OpenAIAPI api = new OpenAIAPI(appSettings.OpenAiSettings.API_KEY);
-        Conversation conversation = api.Chat.CreateConversation(new ChatRequest()
-        {
-            Temperature = 0.1,
-            Model = Model.GPT4
-        });
-
-        conversation.AppendSystemMessage(systemMessage);
-        return conversation;
     }
 }

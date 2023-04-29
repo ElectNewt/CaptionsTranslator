@@ -3,6 +3,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Options;
 
 namespace CaptionsTranslator.Dependencies.YouTube;
 
@@ -19,9 +20,9 @@ public class YouTubeClientFactory : IYouTubeClientFactory
     private UserCredential? UserCredential { get; set; }
 
 
-    public YouTubeClientFactory(AppSettings configuration)
+    public YouTubeClientFactory(IOptions<YouTubeSettings> configuration)
     {
-        _configuration = configuration.YouTubeSettings;
+        _configuration = configuration.Value;
         YouTubeService = null;
     }
 

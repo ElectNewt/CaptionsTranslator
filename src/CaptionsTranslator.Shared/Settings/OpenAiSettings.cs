@@ -1,6 +1,7 @@
 ﻿namespace CaptionsTranslator.Shared.Settings;
 
+#nullable  disable
 public record OpenAiSettings
 {
-    public required string API_KEY { get; init; }
+    public string API_KEY { get; init; }
 }

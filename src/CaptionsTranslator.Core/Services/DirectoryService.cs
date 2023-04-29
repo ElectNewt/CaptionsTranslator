@@ -1,4 +1,5 @@
 ﻿using CaptionsTranslator.Shared.Settings;
+using Microsoft.Extensions.Options;
 
 namespace CaptionsTranslator.Core.Services;
 
@@ -9,15 +10,15 @@ public interface IDirectoryService
 
 public class DirectoryService : IDirectoryService
 {
-    private readonly AppSettings _appSettings;
+    private readonly TranslationSettings _translationSettings;
 
-    public DirectoryService(AppSettings appSettings)
+    public DirectoryService(IOptions<TranslationSettings> translationSettings)
     {
-        _appSettings = appSettings;
+        _translationSettings = translationSettings.Value;
     }
 
 
     public string?[] GetFileNames()
-        => Directory.GetFiles(_appSettings.TranslationSettings.OriginalFolder)
+        => Directory.GetFiles(_translationSettings.OriginalFolder)
             .Select(Path.GetFileName).ToArray();
 }

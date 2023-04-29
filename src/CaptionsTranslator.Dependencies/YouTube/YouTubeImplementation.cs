@@ -1,6 +1,7 @@
 ﻿using CaptionsTranslator.Shared.Settings;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Microsoft.Extensions.Options;
 
 namespace CaptionsTranslator.Dependencies.YouTube;
 
@@ -15,12 +16,12 @@ public interface IYouTube
 public class YouTubeImplementation : IYouTube
 {
     private readonly IYouTubeClientFactory _youTubeClientFactory;
-    private readonly AppSettings _settings;
+    private readonly TranslationSettings _translationSettings;
 
-    public YouTubeImplementation(IYouTubeClientFactory youTubeClientFactory, AppSettings settings)
+    public YouTubeImplementation(IYouTubeClientFactory youTubeClientFactory, IOptions<TranslationSettings> translationSettings)
     {
         _youTubeClientFactory = youTubeClientFactory;
-        _settings = settings;
+        _translationSettings = translationSettings.Value;
     }
 
 
@@ -41,7 +42,7 @@ public class YouTubeImplementation : IYouTube
         downloadRequest.Download(memoryStream);
         await downloadRequest.DownloadAsync(memoryStream);
 
-        await File.WriteAllBytesAsync($@"{_settings.TranslationSettings.OriginalFolder}\\{videoId}.{format}", memoryStream.ToArray());
+        await File.WriteAllBytesAsync($@"{_translationSettings.OriginalFolder}\\{videoId}.{format}", memoryStream.ToArray());
         return $"{videoId}.{format}";
     }
 
@@ -60,7 +61,7 @@ public class YouTubeImplementation : IYouTube
             Snippet = snippet
         };
 
-        await using var fileStream = new FileStream($@"{_settings.TranslationSettings.TranslationFolder}\\{videoId}.{format}", FileMode.Open);
+        await using var fileStream = new FileStream($@"{_translationSettings.TranslationFolder}\\{videoId}.{format}", FileMode.Open);
         //create the request now and insert our params...
         var captionRequest = client.Captions.Insert(caption, "snippet", fileStream, "application/x-subrip");
 

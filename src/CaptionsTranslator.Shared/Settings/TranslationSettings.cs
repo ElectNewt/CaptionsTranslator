@@ -1,8 +1,9 @@
 ﻿namespace CaptionsTranslator.Shared.Settings;
 
+#nullable  disable
 public record TranslationSettings
 {
-    public required string OriginalFolder { get; init; }
-    public required string TranslationFolder { get; init; }
-    public required string PlainTranslation { get; init; }
+    public string OriginalFolder { get; init; }
+    public string TranslationFolder { get; init; }
+    public string PlainTranslation { get; init; }
 }

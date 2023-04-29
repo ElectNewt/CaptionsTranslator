@@ -15,19 +15,12 @@ IConfiguration config = new ConfigurationBuilder()
     .Build();
 
 
-OpenAiSettings openAiSettings = config.GetRequiredSection("OpenAiSettings").Get<OpenAiSettings>();
-TranslationSettings translationSettings = config.GetRequiredSection("TranslationSettings").Get<TranslationSettings>();
-YouTubeSettings youTubeSettings = config.GetRequiredSection("YouTubeSettings").Get<YouTubeSettings>();
-
 IServiceCollection serviceCollection = new ServiceCollection()
     .AddDependenciesServices()
     .AddCoreServices()
-    .AddScoped<AppSettings>(_ => new AppSettings()
-    {
-        OpenAiSettings = openAiSettings,
-        TranslationSettings = translationSettings,
-        YouTubeSettings = youTubeSettings
-    });
+    .Configure<OpenAiSettings>(config.GetRequiredSection("OpenAiSettings"))
+    .Configure<TranslationSettings>(config.GetRequiredSection("TranslationSettings"))
+    .Configure<YouTubeSettings>(config.GetRequiredSection("YouTubeSettings"));
 
 ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
