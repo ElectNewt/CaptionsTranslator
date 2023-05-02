@@ -1,0 +1,20 @@
+﻿@page "/filetranscription"
+@inject IAppState _appState;
+@using CaptionsTranslator.Desktop.Shared.Translation
+
+<h3>Load File from "OriginalFolder" in settings</h3>
+
+<div class="row mb-1">
+	<div class="col-12">
+		<div class="form-floating">
+			<input type="text" class="form-control" id="filename" @bind="filename" placeholder="filename">
+			<label for="filename">introduce the file name</label>
+		</div>
+	</div>
+</div>
+<Transcription OriginalPath="@_appState.TranslationSettings.OriginalFolder" OriginalFilename="@filename" />
+
+
+@code {
+	public string filename { get; set; }
+}

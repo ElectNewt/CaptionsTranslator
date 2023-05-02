@@ -41,6 +41,8 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <!--this is needed for the configuration, eventually it will change GITHUB #8--><!--
+    <rescap:Capability Name="allowElevation" />-->
   </Capabilities>
 
 </Package>

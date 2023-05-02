@@ -6,7 +6,7 @@ namespace CaptionsTranslator.Dependencies.OpenAI;
 
 public interface ITranslationService
 {
-    Task<string> PlainTranslation(string text);
+    Task<string> PlainTranslation(string text, string gptModel = "default");
 }
 
 public class TranslationService : OpenAiBaseClass, ITranslationService
@@ -17,8 +17,10 @@ public class TranslationService : OpenAiBaseClass, ITranslationService
     {
     }
 
-    public async Task<string> PlainTranslation(string text)
+    public async Task<string> PlainTranslation(string text, string gptModel)
     {
+        ChatGptModel = gptModel;
+
         StringBuilder sb = new StringBuilder();
         string message = "Can you translate the next text into English? please respond only the translation:";
         sb.AppendLine(message);

@@ -3,24 +3,18 @@ using CaptionsTranslator.Core.Services;
 using CaptionsTranslator.Dependencies;
 using CaptionsTranslator.Dependencies.OpenAI;
 using CaptionsTranslator.Dependencies.YouTube;
-using CaptionsTranslator.Shared.Settings;
+using CaptionsTranslator.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 
-IConfiguration config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile("appsettings.private.json", optional: true)
-    .AddEnvironmentVariables()
-    .Build();
+IConfiguration config = SharedDependencyInjection.BuildConfiguration();
 
 
 IServiceCollection serviceCollection = new ServiceCollection()
     .AddDependenciesServices()
     .AddCoreServices()
-    .Configure<OpenAiSettings>(config.GetRequiredSection("OpenAiSettings"))
-    .Configure<TranslationSettings>(config.GetRequiredSection("TranslationSettings"))
-    .Configure<YouTubeSettings>(config.GetRequiredSection("YouTubeSettings"));
+    .AddSharedConfiguration(config);
 
 ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 

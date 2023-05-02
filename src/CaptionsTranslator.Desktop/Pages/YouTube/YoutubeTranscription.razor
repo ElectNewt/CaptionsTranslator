@@ -1,0 +1,51 @@
+﻿@page "/youtubetranscription"
+@using CaptionsTranslator.Core.Services;
+@using CaptionsTranslator.Dependencies.YouTube;
+@using CaptionsTranslator.Shared.Dtos;
+@using CaptionsTranslator.Desktop.Shared.Translation;
+@inject IYouTube _youtube;
+@inject IAppState _appState;
+<h3>Download youtube Transcription (.srt)</h3>
+
+<div class="row">
+	<div class="input-group mb-3">
+		<input type="text" @bind="VideoId" class="form-control" placeholder="YouTube video Id" aria-label="YouTube video Id" aria-describedby="ytvideoIdbtn">
+		<button class="btn btn-outline-primary" type="button" id="ytvideoIdbtn" @onclick="DownloadTranscription">Download Transcription from Youtube</button>
+	</div>
+</div>
+
+
+<div class="row @VideoBoxVisibility">
+	<div class="col-12 mb-1 @LoadingVisibility">
+		@LoadingText
+	</div>
+	<Transcription OriginalPath="@_appState.TranslationSettings.OriginalFolder" OriginalFilename="@OriginalFilename" />
+</div>
+
+
+@code {
+
+	public string VideoId { get; set; }
+	public string OriginalFilename => $"{VideoId}.srt";
+
+	public string VideoBoxVisibility { get; set; } = "invisible";
+	public string LoadingVisibility { get; set; } = "invisible";
+	public string LoadingText { get; set; } = "Downloading .srt file...";
+
+	async Task DownloadTranscription()
+	{
+		LoadingText = "Downloading .srt file...";
+		VideoBoxVisibility = "visible";
+		LoadingVisibility = "visible";
+
+		try
+		{
+			string file = await _youtube.DownloadCaptionFile(VideoId);
+			LoadingText = $"File downloaded in {_appState.TranslationSettings.OriginalFolder}\\{file}";
+		}
+		catch (Exception e)
+		{
+			LoadingText = e.Message;
+		}
+	}
+}

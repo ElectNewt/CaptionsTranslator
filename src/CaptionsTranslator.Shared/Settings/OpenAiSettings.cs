@@ -4,4 +4,5 @@
 public record OpenAiSettings
 {
     public string API_KEY { get; init; }
+    public string Model { get; set; }
 }

@@ -1,0 +1,136 @@
+﻿@using CaptionsTranslator.Core.Services;
+@using CaptionsTranslator.Shared.Dtos;
+@inject IAppState _appState;
+@inject ICaptionService _captionService;
+@inject IFileService _fileService;
+
+<div class="col-12 mb-1">
+	<button class="btn btn-primary" @onclick="LoadTranscription">Load Transcription</button>
+</div>
+<div class="col-12 @ContentVisibility">
+	<div class="row">
+		<div class="col-5">
+			@if (captionFile != null)
+			{
+				foreach (var caption in captionFile.Captions)
+				{
+					<div class="card mb-1">
+						<div class="card-header">
+							@caption.Number, @caption.Time
+						</div>
+						<div class="card-body">
+							<p class="card-text">@caption.Content</p>
+						</div>
+					</div>
+				}
+			}
+
+		</div>
+		<div class="col-2">
+			<div class="row">
+				<div class="input-group">
+					<select class="form-select form-control" @bind="_appState.OpenAiSettings.Model" aria-describedby="translateBtn">
+						<option value="3.5turbo">GPT-3.5 Turbo</option>
+						<option value="4">GPT-4</option>
+					</select>
+					<button class="btn btn-outline-primary" type="button" id="translateBtn" @onclick="Translate40">Translate All</button>
+					<button class="btn btn-outline-primary" type="button" id="translateBtn2" @onclick="Translate20">Translate next 20</button>
+				</div>
+			</div>
+			(this process might take a while)
+
+		</div>
+		<div class="col-5">
+			<div class="col-12 mb-1">
+				@CaptionInfoText
+			</div>
+
+			@if (captionFile != null)
+			{
+				foreach (var caption in captionFile.Captions)
+				{
+					<div class="card mb-1">
+						<div class="card-header">
+							@caption.Number
+						</div>
+						<div class="card-body">
+							<p class="card-text"> @(TranslatedCaptions.FirstOrDefault(a=>a.Number == caption.Number)?.Content ?? string.Empty)</p>
+						</div>
+					</div>
+				}
+			}
+
+			@*@foreach (var caption in TranslatedCaptions)
+			{
+				<div class="card mb-1">
+					<div class="card-header">
+						@caption.Number
+					</div>
+					<div class="card-body">
+						<p class="card-text">@caption.Content</p>
+					</div>
+				</div>
+			}*@
+
+
+		</div>
+	</div>
+</div>
+
+
+
+@code {
+	public string ContentVisibility { get; set; } = "invisible";
+
+	[Parameter]
+	public string OriginalPath { get; set; }
+
+	[Parameter]
+	public string OriginalFilename { get; set; }
+
+	CaptionFile captionFile = null;
+	public string CaptionInfoText = string.Empty;
+
+	List<Caption> TranslatedCaptions { get; set; } = new List<Caption>();
+
+
+	async Task LoadTranscription()
+	{
+		captionFile = await _captionService.RetrieveCaptions(OriginalPath, OriginalFilename);
+		ContentVisibility = "visible";
+		await TryLoadExistingFile();
+	}
+
+	async Task Translate20()
+	=> await TranslateAction(20);
+
+	async Task Translate40()
+	=> await TranslateAction(40);
+
+	async Task TranslateAction(int chunks)
+	{
+		var t = _appState.OpenAiSettings.Model;
+		//Continue from last or from start?
+
+		//after each iteration save in disc.
+		//This needs a "cancel" action at some point
+		//Also a button to upload to youtube
+
+		//Allow the user to change the translation?
+
+	}
+
+	async Task TryLoadExistingFile()
+	{
+		try
+		{
+			CaptionInfoText = "Translation in progress or completed found:";
+			string translatedFile = await _fileService.LoadCaptionFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename);
+			TranslatedCaptions = _captionService.ConvertIntoCaptions(translatedFile);
+		}
+		catch (Exception e)
+		{
+			CaptionInfoText = "No Translation in progress found";
+		}
+	}
+}

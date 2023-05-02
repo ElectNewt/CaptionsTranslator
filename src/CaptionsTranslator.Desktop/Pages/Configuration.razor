@@ -1,0 +1,128 @@
+﻿@page "/Configuration"
+@using System.Text
+@using CaptionsTranslator.Shared.Settings;
+@inject IAppState _appState
+
+<h3>Configuration</h3>
+@* increase options about where to save the information *@
+<div class="col-12 mb-1">
+	<div class="card">
+		<div class="card-header">
+			Translations
+		</div>
+		<div class="card-body">
+			<div class="mb-3">
+				<label for="OriginalFolder" class="form-label">Original folder (where the file to be translated will be located)</label>
+				<input type="text" class="form-control" id="OriginalFolder" @bind="OriginalFolder">
+			</div>
+			<div class="mb-3">
+				<label for="IntermediateFolder" class="form-label">Intermediate folder (where the "Plain" translated file will be located)</label>
+				<input type="text" class="form-control" id="IntermediateFolder" @bind="IntermediateFolder">
+			</div>
+			<div class="mb-3">
+				<label for="TranslationFolder" class="form-label">Translation folder (Where the Finishes translated file will be located)</label>
+				<input type="text" class="form-control" id="TranslationFolder" @bind="TranslationFolder">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="col-12 mb-1">
+	<div class="card">
+		<div class="card-header">
+			OpenAI
+		</div>
+		<div class="card-body">
+			<div class="mb-3">
+				<label for="openAIAPiKey" class="form-label">
+					OpenAI API_KEY
+					<a href="https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><g fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" /><path d="m8.93 6.588l-2.29.287l-.082.38l.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319c.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246c-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z" /></g></svg>
+					</a>
+				</label>
+				<input type="password" class="form-control" id="openAIAPiKey" @bind="OpenAiApiKey" aria-describedby="emailHelp">
+				@* add a button that shows/hide the apikey *@
+			</div>
+			<div class="mb-3">
+				<label for="openAIAPiKey" class="form-label">OpenAI Model to use</label>
+				<select class="form-select" aria-label="Select ChatGPT version" @bind="SelectedOpenAiModel">
+					<option value="3.5turbo">GPT-3.5 Turbo</option>
+					<option value="4">GPT-4</option>
+				</select>
+			</div>
+
+		</div>
+	</div>
+</div>
+<div class="col-12 mb-1">
+	<div class="card">
+		<div class="card-header">
+			Youtube
+		</div>
+		<div class="card-body">
+			<div class="mb-3">
+				<label for="appName" class="form-label">ApplicationName</label>
+				<input type="text" class="form-control" id="appName" @bind="ApplicationName">
+			</div>
+			<div class="mb-3">
+				<label for="oauth2Id" class="form-label">Oauth2 ClientId</label>
+				<input type="password" class="form-control" id="oauth2Id" @bind="OAuth2ClientId">
+			</div>
+			<div class="mb-3">
+				<label for="OAuth2ClientSecret" class="form-label">Oauth2 ClientSecret</label>
+				<input type="password" class="form-control" id="OAuth2ClientSecret" @bind="OAuth2ClientSecret">
+			</div>
+		</div>
+	</div>
+</div>
+<div class="col-12 mb-1">
+	<button type="button" class="btn btn-primary" @onclick="StoreConfiguration">Save (this can take a while and the app may crash)</button>
+</div>
+
+
+@code {
+
+	public string? OpenAiApiKey { get; set; }
+	public string? OriginalFolder { get; set; }
+	public string? SelectedOpenAiModel { get; set; }
+	public string? IntermediateFolder { get; set; }
+	public string? TranslationFolder { get; set; }
+	public string? ApplicationName { get; set; }
+	public string? OAuth2ClientId { get; set; }
+	public string? OAuth2ClientSecret { get; set; }
+
+
+	protected override void OnInitialized()
+	{
+		OpenAiApiKey = _appState.OpenAiSettings.API_KEY;
+		SelectedOpenAiModel = _appState.OpenAiSettings.Model;
+		OriginalFolder = _appState.TranslationSettings.OriginalFolder;
+		IntermediateFolder = _appState.TranslationSettings.PlainTranslation;
+		TranslationFolder = _appState.TranslationSettings.TranslationFolder;
+		ApplicationName = _appState.YouTubeSettings.ApplicationName;
+		OAuth2ClientId = _appState.YouTubeSettings.OAuth2ClientId;
+		OAuth2ClientSecret = _appState.YouTubeSettings.OAuth2ClientSecret;
+	}
+
+	void StoreConfiguration()
+	{
+		_appState.SaveConfiguration(new OpenAiSettings
+			{
+				API_KEY = OpenAiApiKey,
+				Model = SelectedOpenAiModel
+			}, 
+			new TranslationSettings
+			{
+				OriginalFolder = OriginalFolder,
+				PlainTranslation = IntermediateFolder,
+				TranslationFolder = TranslationFolder
+			}, 
+			new YouTubeSettings
+			{
+				ApplicationName = ApplicationName,
+				OAuth2ClientId = OAuth2ClientId,
+				OAuth2ClientSecret = OAuth2ClientSecret
+			});
+	}
+
+}

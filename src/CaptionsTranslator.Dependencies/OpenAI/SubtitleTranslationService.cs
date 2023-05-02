@@ -7,8 +7,8 @@ namespace CaptionsTranslator.Dependencies.OpenAI;
 
 public interface ISubtitleTranslationService
 {
-    Task<string> TranslateFile(CaptionFile file);
-    Task<string> RetrieveMissingTranslations(List<Caption> captions);
+    Task<string> TranslateFile(CaptionFile file, string gptModel = "default");
+    Task<string> RetrieveMissingTranslations(List<Caption> captions, string gptModel = "default");
     
 }
 
@@ -46,8 +46,10 @@ Do you have any doubt?
     
     //TODO: not sure if this batching should be here or in a previous class.
     //Probably I should try to calculate the units and use as max as possible. 
-    public async Task<string> TranslateFile(CaptionFile file)
+    public async Task<string> TranslateFile(CaptionFile file, string gptModel)
     {
+        ChatGptModel = gptModel;
+
         StringBuilder responses = new StringBuilder();
         foreach (var caption in file.Captions.Chunk(40).Select((value, iteration) => (value, iteration)))
         {
@@ -59,8 +61,10 @@ Do you have any doubt?
         return responses.ToString();
     }
 
-    public async Task<string> RetrieveMissingTranslations(List<Caption> captions)
+    public async Task<string> RetrieveMissingTranslations(List<Caption> captions, string gptModel)
     {
+        ChatGptModel = gptModel;
+
         StringBuilder responses = new StringBuilder();
         foreach (var caption in captions.Chunk(25).Select((value, iteration) => (value, iteration)))
         {
