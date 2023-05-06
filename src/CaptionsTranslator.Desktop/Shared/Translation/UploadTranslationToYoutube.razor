@@ -1,0 +1,43 @@
+﻿@using CaptionsTranslator.Dependencies.YouTube;
+@inject IYouTube _youtube;
+
+<div class="col-12 mb-1">
+	<div class="row">
+		<div class="input-group mb-3">
+			<input type="text" @bind="FileLocation" readonly class="form-control" placeholder="YouTube video Id" aria-label="YouTube video Id" aria-describedby="ytvideoIdbtn">
+			<input type="text" @bind="VideoId" class="form-control" placeholder="YouTube video Id" aria-label="YouTube video Id" aria-describedby="ytvideoIdbtn">
+			<button class="btn btn-outline-primary" type="button" id="ytvideoIdbtn" disabled="@IsDisabled" @onclick="UploadToYoutube">Upload To Youtube</button>
+		</div>
+	</div>
+	<div class="row mb-1">
+		@UploadMessage
+	</div>
+</div>
+
+@code {
+	
+	[Parameter]
+	public string VideoId { get; set; }
+
+	[Parameter]
+	public string FileLocation { get; set; }
+
+	private string UploadMessage { get; set; } = string.Empty;
+
+	protected bool IsDisabled { get; set; }
+
+
+	async Task UploadToYoutube()
+	{
+		try
+		{
+			IsDisabled = true;
+			UploadMessage = "Uploading...";
+			await _youtube.UploadTranslatedFile(VideoId);
+			UploadMessage = "Completed!";
+		} catch (Exception e)
+		{
+			UploadMessage = $"Error: {e.Message}";
+		}
+	}
+}

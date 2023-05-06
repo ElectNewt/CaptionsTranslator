@@ -1,0 +1,167 @@
+﻿@using CaptionsTranslator.Core.Services;
+@using CaptionsTranslator.Dependencies.OpenAI;
+@using CaptionsTranslator.Dependencies.YouTube;
+@using CaptionsTranslator.Shared.Dtos;
+@inject IAppState _appState;
+@inject IYouTube _youtube;
+@inject ITranslationService _translationService;
+@inject ICaptionService _captionService;
+@inject IFileService _fileService;
+@inject ISubtitleTranslationService _subtituleTranslationService;
+
+@page "/YoutubeBackgroundTranslation"
+
+<h3>Full translation of a youtube video.</h3>
+
+<div class="row">
+	<div class="col-12 mb-1">
+		<div class="row">
+			<div class="input-group mb-3">
+				<select class="form-select form-control" @bind="_appState.OpenAiSettings.Model" aria-describedby="translateBtn">
+					<option value="3.5turbo">GPT-3.5 Turbo</option>
+					<option value="4">GPT-4</option>
+				</select>
+				<input type="text" @bind="VideoId" class="form-control" placeholder="YouTube video Id" aria-label="YouTube video Id" aria-describedby="ytvideoIdbtn">
+				<button class="btn btn-outline-primary" type="button" id="ytvideoIdbtn" disabled="@IsDisabled" @onclick="DoWork">Start!</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row @WorkVisibility">
+	<ul class="list-group">
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			Translate Title and description
+			<span class="badge bg-primary rounded-pill">@TitleandDescriptionText</span>
+		</li>
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			Retrieve captions from YouTube
+			<span class="badge bg-primary rounded-pill">@RetrieveCaptionsText</span>
+		</li>
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			Translating captions
+			<span class="badge bg-primary rounded-pill">@TranslatingCaptionsText</span>
+		</li>
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			Upload Translated Captions To YouTube
+			<span class="badge bg-primary rounded-pill">@UploadCaptionsToYoutubeText</span>
+		</li>
+	</ul>
+</div>
+
+@ErrorText
+
+
+
+@code {
+	public string VideoId { get; set; }
+	public bool IsDisabled { get; set; }
+	public string WorkVisibility { get; set; } = "invisible";
+	public string TitleandDescriptionText { get; set; } = "Pending";
+	public string RetrieveCaptionsText { get; set; } = "Pending";
+	public string TranslatingCaptionsText { get; set; } = "Pending";
+	public string UploadCaptionsToYoutubeText { get; set; } = "Pending";
+	public string ErrorText { get; set; } = string.Empty;
+	public string OriginalFilename { get; set; }
+
+	async Task DoWork()
+	{
+		try
+		{
+			WorkVisibility = "visible";
+			IsDisabled = true;
+			await UpdateTitleAndDescription();
+			await GetCaptionsFromYoutube();
+			await TranslateCaptions();
+			await UploadToYoutube();
+
+		}
+		catch (Exception e)
+		{
+			ErrorText = e.Message;
+		}
+	}
+
+	async Task UpdateTitleAndDescription()
+	{
+
+		TitleandDescriptionText = "In Progress...";
+		StateHasChanged();
+		(string Title, string Description) original = await _youtube.GetVideoInformation(VideoId);
+		var TranslatedTitle = await _translationService.PlainTranslation(original.Title, _appState.OpenAiSettings.Model);
+		var TranslatedDescriptionOriginal = await _translationService.PlainTranslation(original.Description, _appState.OpenAiSettings.Model);
+		TitleandDescriptionText = "Uploading to YouTube...";
+		StateHasChanged();
+		await _youtube.UpdateVideoLocalization(VideoId, TranslatedTitle, TranslatedDescriptionOriginal, "en");
+		TitleandDescriptionText = "Completed!";
+		StateHasChanged();
+
+	}
+
+	async Task GetCaptionsFromYoutube()
+	{
+		RetrieveCaptionsText = "In Progress...";
+		StateHasChanged();
+		OriginalFilename = await _youtube.DownloadCaptionFile(VideoId);
+		RetrieveCaptionsText = $"File downloaded in {_appState.TranslationSettings.OriginalFolder}\\{OriginalFilename}";
+		StateHasChanged();
+
+	}
+
+	async Task TranslateCaptions()
+	{
+
+		TranslatingCaptionsText = "In progress...";
+		StateHasChanged();
+		CaptionFile captionFile = await _captionService.RetrieveCaptions(_appState.TranslationSettings.OriginalFolder, OriginalFilename);
+		//reset the file
+		await _fileService.DumpCaptionsIntoFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename, String.Empty);
+
+		List<Caption> translatedCaptions = new List<Caption>();
+		foreach (var caption in captionFile.Captions.Chunk(40).Select((value, iteration) => (value, iteration)))
+		{
+			translatedCaptions = await TranslateCaptions(caption.value.ToList(), captionFile);
+		}
+		await StoreTranslatedFile(translatedCaptions);
+		TranslatingCaptionsText = "Completed!";
+		StateHasChanged();
+
+		async Task<List<Caption>> TranslateCaptions(List<Caption> captions, CaptionFile captionFile)
+		{
+			if (captions.Any())
+			{
+				string translatedResult = await _subtituleTranslationService.TranslateChunk(captions, _appState.OpenAiSettings.Model);
+				await _fileService.AppendToFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename, translatedResult);
+			}
+			return await TryLoadExistingFile(captionFile);
+		}
+
+		async Task<List<Caption>> TryLoadExistingFile(CaptionFile captionFile)
+		{
+			string translatedFile = await _fileService.LoadCaptionFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename);
+			List<Caption> translatedCaptions = _captionService.ConvertIntoCaptions(translatedFile);
+			int lastIdentifierTranslated = translatedCaptions.Max(a => a.Number);
+			TranslatingCaptionsText = $"In Progress... Translated {lastIdentifierTranslated} out of {captionFile.Captions.Count}, ({(lastIdentifierTranslated * 100) / captionFile.Captions.Count}%)";
+			StateHasChanged();
+			return translatedCaptions;
+		}
+
+		async Task StoreTranslatedFile(List<Caption> translatedCaptions)
+		{
+			string translatedString = _captionService.ConvertIntoString(translatedCaptions);
+			await _fileService.DumpCaptionsIntoFile(_appState.TranslationSettings.TranslationFolder, OriginalFilename, translatedString);
+			TranslatingCaptionsText = $"File Saved on: {_appState.TranslationSettings.TranslationFolder}\\{OriginalFilename}";
+			StateHasChanged();
+		}
+
+	}
+
+	async Task UploadToYoutube()
+	{
+		UploadCaptionsToYoutubeText = "Uploading...";
+		StateHasChanged();
+		await _youtube.UploadTranslatedFile(VideoId);
+		UploadCaptionsToYoutubeText = "Completed!";
+		StateHasChanged();
+	}
+
+}

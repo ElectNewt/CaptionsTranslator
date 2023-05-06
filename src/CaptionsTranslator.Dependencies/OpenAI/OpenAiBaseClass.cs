@@ -61,6 +61,6 @@ public abstract class OpenAiBaseClass
         {
             "4" => Model.GPT4,
             "3.5turbo" => Model.ChatGPTTurbo,
-            _ => Model.DefaultModel
+            _ => Model.ChatGPTTurbo
         };
 }

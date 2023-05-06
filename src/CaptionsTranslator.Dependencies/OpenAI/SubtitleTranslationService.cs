@@ -9,7 +9,8 @@ public interface ISubtitleTranslationService
 {
     Task<string> TranslateFile(CaptionFile file, string gptModel = "default");
     Task<string> RetrieveMissingTranslations(List<Caption> captions, string gptModel = "default");
-    
+    Task<string> TranslateChunk(List<Caption> captions, string gptModel = "default");
+
 }
 
 public class SubtitleSubtitleTranslationService : OpenAiBaseClass, ISubtitleTranslationService
@@ -39,11 +40,11 @@ Instructions:
 
 Do you have any doubt?
 """;
-    
+
     public SubtitleSubtitleTranslationService(IOptions<OpenAiSettings> openAiSettings) : base(openAiSettings)
     {
     }
-    
+
     //TODO: not sure if this batching should be here or in a previous class.
     //Probably I should try to calculate the units and use as max as possible. 
     public async Task<string> TranslateFile(CaptionFile file, string gptModel)
@@ -58,6 +59,20 @@ Do you have any doubt?
             responses.AppendLine(String.Empty);
         }
 
+        return responses.ToString();
+    }
+
+    public async Task<string> TranslateChunk(List<Caption> captions, string gptModel)
+    {
+        ChatGptModel = gptModel;
+
+        StringBuilder responses = new StringBuilder();
+        if (captions.Any())
+        {
+            string result = await ContinueConversation(captions.ToArray());
+            responses.AppendLine(result);
+            responses.AppendLine(String.Empty);
+        }
         return responses.ToString();
     }
 

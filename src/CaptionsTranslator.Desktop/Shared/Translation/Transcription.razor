@@ -1,15 +1,17 @@
 ﻿@using CaptionsTranslator.Core.Services;
+@using CaptionsTranslator.Dependencies.OpenAI;
 @using CaptionsTranslator.Shared.Dtos;
 @inject IAppState _appState;
 @inject ICaptionService _captionService;
 @inject IFileService _fileService;
+@inject ISubtitleTranslationService _subtituleTranslationService;
 
 <div class="col-12 mb-1">
 	<button class="btn btn-primary" @onclick="LoadTranscription">Load Transcription</button>
 </div>
 <div class="col-12 @ContentVisibility">
 	<div class="row">
-		<div class="col-5">
+		<div class="col-4">
 			@if (captionFile != null)
 			{
 				foreach (var caption in captionFile.Captions)
@@ -26,21 +28,28 @@
 			}
 
 		</div>
-		<div class="col-2">
+		<div class="col-4">
 			<div class="row">
 				<div class="input-group">
 					<select class="form-select form-control" @bind="_appState.OpenAiSettings.Model" aria-describedby="translateBtn">
 						<option value="3.5turbo">GPT-3.5 Turbo</option>
 						<option value="4">GPT-4</option>
 					</select>
-					<button class="btn btn-outline-primary" type="button" id="translateBtn" @onclick="Translate40">Translate All</button>
-					<button class="btn btn-outline-primary" type="button" id="translateBtn2" @onclick="Translate20">Translate next 20</button>
+					<button class="btn btn-outline-primary" type="button" id="translateBtn" @onclick="TranslateAll" disabled="@IsTranslationButtonDisabled">Translate All</button>
+					<button class="btn btn-outline-primary" type="button" id="translateBtn2" @onclick="Translate20" disabled="@(IsTranslationButtonDisabled|| IsTranslate20Disabled)">Translate next 20</button>
 				</div>
 			</div>
+			<br />
 			(this process might take a while)
+			<br />
+			@CurrentInformationText
+			<div class="row @CancelButtonVisibility">
+				<button class="btn btn-outline-danger" type="button" @onclick="CancelTranslateAll">@CancelButtonText</button>
+			</div>
+
 
 		</div>
-		<div class="col-5">
+		<div class="col-4">
 			<div class="col-12 mb-1">
 				@CaptionInfoText
 			</div>
@@ -54,33 +63,35 @@
 							@caption.Number
 						</div>
 						<div class="card-body">
-							<p class="card-text"> @(TranslatedCaptions.FirstOrDefault(a=>a.Number == caption.Number)?.Content ?? string.Empty)</p>
+							<p class="card-text"> @(TranslatedCaptions.FirstOrDefault(a => a.Number == caption.Number)?.Content ?? string.Empty)</p>
 						</div>
 					</div>
 				}
 			}
-
-			@*@foreach (var caption in TranslatedCaptions)
-			{
-				<div class="card mb-1">
-					<div class="card-header">
-						@caption.Number
-					</div>
-					<div class="card-body">
-						<p class="card-text">@caption.Content</p>
-					</div>
-				</div>
-			}*@
-
-
 		</div>
 	</div>
+</div>
+
+<div class="col-12 mb-1 @ContentVisibility">
+	<div class="row">
+		<div class="col-6 mb-1">
+		</div>
+		<div class="col-6 mb-1">
+			<button class="btn btn-primary" @onclick="StoreTranslatedFile">Save final translation</button>
+			@SaveTranslatedFileText
+		</div>
+	</div>
+</div>
+<div class="@UploadToYTVisibility">
+	<UploadTranslationToYoutube FileLocation="@($"{_appState.TranslationSettings.TranslationFolder}\\{OriginalFilename}")"></UploadTranslationToYoutube>
 </div>
 
 
 
 @code {
 	public string ContentVisibility { get; set; } = "invisible";
+	public string UploadToYTVisibility { get; set; } = "invisible";
+
 
 	[Parameter]
 	public string OriginalPath { get; set; }
@@ -93,6 +104,19 @@
 
 	List<Caption> TranslatedCaptions { get; set; } = new List<Caption>();
 
+	private int LastIdentifierTranslated { get; set; } = 0;
+	public string SaveTranslatedFileText { get; set; } = String.Empty;
+
+	public string CurrentInformationText { get; set; } = String.Empty;
+
+	public bool IsTranslationButtonDisabled { get; set; }
+	public bool IsTranslateAllCancelled { get; set; } = false;
+	public bool IsTranslate20Disabled { get; set; } = false;
+
+	public string CancelButtonVisibility { get; set; } = "invisible";
+	public string CancelButtonText { get; set; } = "Cancel Current translation";
+
+
 
 	async Task LoadTranscription()
 	{
@@ -102,22 +126,58 @@
 	}
 
 	async Task Translate20()
-	=> await TranslateAction(20);
-
-	async Task Translate40()
-	=> await TranslateAction(40);
-
-	async Task TranslateAction(int chunks)
 	{
-		var t = _appState.OpenAiSettings.Model;
-		//Continue from last or from start?
+		List<Caption> captions = captionFile.Captions.Skip(LastIdentifierTranslated)?.Take(20)?.ToList() ?? new List<Caption>();
+		await TranslateCaptions(captions);
+	}
 
-		//after each iteration save in disc.
-		//This needs a "cancel" action at some point
-		//Also a button to upload to youtube
+	//Should I create a checkbox to translate all and override existing?
+	async Task TranslateAll()
+	{
+		CancelButtonVisibility = "visible";
+		CancelButtonText = "Cancel Current translation";
+		//Reset the file;
+		LastIdentifierTranslated = 0;
+		await _fileService.DumpCaptionsIntoFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename, String.Empty);
+		TranslatedCaptions = new List<Caption>();
 
-		//Allow the user to change the translation?
+		foreach (var caption in captionFile.Captions.Chunk(40).Select((value, iteration) => (value, iteration)))
+		{
+			if (!IsTranslateAllCancelled)
+			{
+				await TranslateCaptions(caption.value.ToList());
+			}
+			else
+			{
+				CancelButtonText = "Cancelled";
+				break;
+			}
+		}
 
+
+
+		CancelButtonVisibility = "invisible";
+	}
+
+	void CancelTranslateAll()
+	{
+		CancelButtonText = "Cancelling...";
+		IsTranslateAllCancelled = true;
+	}
+
+	async Task TranslateCaptions(List<Caption> captions)
+	{
+		//on click disable the buttons to prevent multiple clicks.
+		IsTranslationButtonDisabled = true;
+
+		if (captions.Any())
+		{
+			string translatedResult = await _subtituleTranslationService.TranslateChunk(captions, _appState.OpenAiSettings.Model);
+			await _fileService.AppendToFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename, translatedResult);
+		}
+		await TryLoadExistingFile();
+		//enable buttons again
+		IsTranslationButtonDisabled = false;
 	}
 
 	async Task TryLoadExistingFile()
@@ -127,10 +187,29 @@
 			CaptionInfoText = "Translation in progress or completed found:";
 			string translatedFile = await _fileService.LoadCaptionFile(_appState.TranslationSettings.PlainTranslation, OriginalFilename);
 			TranslatedCaptions = _captionService.ConvertIntoCaptions(translatedFile);
+			LastIdentifierTranslated = TranslatedCaptions.Max(a => a.Number);
+			CurrentInformationText = $"Translated {LastIdentifierTranslated} out of {captionFile.Captions.Count}, ({(LastIdentifierTranslated * 100) / captionFile.Captions.Count}%)";
+			IsTranslate20Disabled = LastIdentifierTranslated >= captionFile.Captions.Count;
 		}
 		catch (Exception e)
 		{
 			CaptionInfoText = "No Translation in progress found";
+		}
+	}
+
+	async Task StoreTranslatedFile()
+	{
+		try
+		{
+			SaveTranslatedFileText = "preparing file...";
+			string translatedString = _captionService.ConvertIntoString(TranslatedCaptions);
+			await _fileService.DumpCaptionsIntoFile(_appState.TranslationSettings.TranslationFolder, OriginalFilename, translatedString);
+			SaveTranslatedFileText = $"Saved on: {_appState.TranslationSettings.TranslationFolder}\\{OriginalFilename}";
+			UploadToYTVisibility = "visible";
+		}
+		catch (Exception e)
+		{
+			SaveTranslatedFileText = $"Error: {e.Message}";
 		}
 	}
 }
