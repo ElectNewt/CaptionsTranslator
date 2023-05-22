@@ -13,7 +13,7 @@
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
 
         <!-- Display name -->
-        <ApplicationTitle>CaptionsTranslator.Desktop</ApplicationTitle>
+        <ApplicationTitle>Captions Translator</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.companyname.captionstranslator.desktop</ApplicationId>
