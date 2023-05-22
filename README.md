@@ -1,4 +1,4 @@
-# Captions Translator: Empower Global Communication
+﻿# Captions Translator: Empower Global Communication
 
 Welcome to the Captions Translator, an open-source project designed to make translating caption files a breeze with high accuracy. Our mission is to enable seamless communication and accessibility for everyone, regardless of language barriers. By joining our community, you'll be part of a team committed to making a difference in the world.
 
@@ -74,4 +74,21 @@ Conversely, leveraging our existing proficiency in Blazor resulted in a more eff
 The selected frontend technology needs to be C# compatible as our overarching aim is to bundle the entire app together. Given that the domain logic is written in C#, a C# compatible frontend is a requirement.
 
 We are open to exploring and adopting other frontend technologies, so long as they meet this C# compatibility criterion.
+
+
+## Support
+
+### ⭐️ Star Us
+
+If you found this project useful, you could support us by giving it a star! 🌟
+
+[![GitHub stars](https://img.shields.io/github/stars/ElectNewt/CaptionsTranslator?style=social)](https://github.com/ElectNewt/CaptionsTranslator/stargazers)
+
+Simply click [here](https://github.com/ElectNewt/CaptionsTranslator/stargazers) to navigate to the repository and click on the "Star" button at the top right corner.
+
+### ☕ Buy Me a Coffee
+
+You can support this project and [keep me caffeinated](https://www.buymeacoffee.com/NetMentor) by making a donation. Every cup of coffee is greatly appreciated and will be used to keep me productive!
+
+[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/NetMentor)
 
